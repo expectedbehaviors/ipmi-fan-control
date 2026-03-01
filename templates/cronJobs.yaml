@@ -1,0 +1,52 @@
+# Generic IPMI fan-control CronJobs. Each item in .Values.jobs becomes one CronJob.
+# Supply your own command, env (e.g. ipmitool args, secretRef for credentials), and schedule.
+# No vendor-specific logic: use for Supermicro, iDRAC, or any ipmitool-compatible BMC.
+{{- range .Values.jobs }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .name }}
+spec:
+  concurrencyPolicy: {{ .concurrencyPolicy | default "Replace" }}
+  failedJobsHistoryLimit: {{ .failedJobsHistoryLimit | default 5 }}
+  jobTemplate:
+    spec:
+      backoffLimit: {{ .backoffLimit | default 2 }}
+      completions: {{ .completions | default 1 }}
+      parallelism: {{ .parallelism | default 1 }}
+      template:
+        metadata:
+          {{- if .annotations }}
+          annotations:
+            {{- toYaml .annotations | nindent 12 }}
+          {{- end }}
+        spec:
+          automountServiceAccountToken: {{ .automountServiceAccountToken | default true }}
+          containers:
+            - command:
+                {{- toYaml .command | nindent 16 }}
+              env:
+                {{- toYaml .env | nindent 16 }}
+              image: {{ .image | default "registry.hub.docker.com/pnnlmiscscripts/ipmitool:latest" }}
+              imagePullPolicy: {{ .imagePullPolicy | default "IfNotPresent" }}
+              name: {{ .name }}
+              {{- if .resources }}
+              resources:
+                {{- toYaml .resources | nindent 16 }}
+              {{- end }}
+              {{- if .securityContext }}
+              securityContext:
+                {{- toYaml .securityContext | nindent 16 }}
+              {{- end }}
+          dnsPolicy: {{ .dnsPolicy | default "ClusterFirst" }}
+          enableServiceLinks: {{ .enableServiceLinks | default true }}
+          restartPolicy: {{ .restartPolicy | default "OnFailure" }}
+          schedulerName: {{ .schedulerName | default "default-scheduler" }}
+          terminationGracePeriodSeconds: {{ .terminationGracePeriodSeconds | default 30 }}
+      ttlSecondsAfterFinished: {{ .ttlSecondsAfterFinished | default 10 }}
+  schedule: {{ .schedule | quote }}
+  startingDeadlineSeconds: {{ .startingDeadlineSeconds | default 10 }}
+  successfulJobsHistoryLimit: {{ .successfulJobsHistoryLimit | default 10 }}
+  suspend: {{ .suspend | default false }}
+{{- end }}
