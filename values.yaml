@@ -1,0 +1,47 @@
+# Generic IPMI fan-control: list of CronJobs. Each job has name, command, env, schedule.
+# No vendor-specific logic — use for Supermicro, iDRAC, or any ipmitool-compatible BMC.
+# Credentials: reference a Secret by name in env (valueFrom.secretKeyRef); sync that secret via onepassworditem below.
+#
+# Example: one job, single host. Add more entries to run different commands/schedules (e.g. per server or vendor).
+jobs:
+  - name: ipmi-fan-control
+    schedule: "*/5 * * * *"
+    command:
+      - /bin/sh
+      - -c
+      - |
+        echo "Configuring IPMI for ${IPMI_HOST}";
+        ipmitool -U ${IPMI_USER} -P ${IPMI_PASSWORD} -H ${IPMI_HOST} raw 0x30 0x70 0x66 0x01 0x00 ${FAN_SPEED};
+        echo "Done";
+    env:
+      - name: IPMI_HOST
+        value: "10.0.0.1"
+      - name: FAN_SPEED
+        value: "0x32"
+      - name: IPMI_USER
+        valueFrom:
+          secretKeyRef:
+            key: username
+            name: ipmi
+            optional: false
+      - name: IPMI_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            key: password
+            name: ipmi
+            optional: false
+    annotations:
+      secret.reloader.stakater.com/reload: ipmi
+    securityContext:
+      allowPrivilegeEscalation: false
+      privileged: false
+      readOnlyRootFilesystem: false
+      runAsNonRoot: false
+
+# Sync credentials from 1Password. Match secret "name" to the secretKeyRef.name used in jobs above.
+onepassworditem:
+  secrets:
+    external-services:
+      - item: vaults/Kubernetes/items/ipmi
+        name: ipmi
+        type: Opaque

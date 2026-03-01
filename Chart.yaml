@@ -1,0 +1,19 @@
+apiVersion: v2
+name: ipmi-fan-control
+description: CronJob-based IPMI fan control for Supermicro (and similar) hosts. Uses 1Password item for credentials. Instantiate per server with your values.
+type: application
+version: v2.10.1
+appVersion: "2.10.1"
+kubeVersion: ">=1.22.0-0"
+keywords:
+  - ipmi
+  - fan-control
+  - cronjob
+  - onepassword
+home: https://github.com/expectedbehaviors/ipmi-fan-control
+sources:
+  - https://github.com/expectedbehaviors/ipmi-fan-control
+dependencies:
+  - name: onepassworditem
+    version: "1.1.1"
+    repository: https://expectedbehaviors.github.io/OnePasswordItem-helm
