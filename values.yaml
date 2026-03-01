@@ -38,10 +38,11 @@ jobs:
       readOnlyRootFilesystem: false
       runAsNonRoot: false
 
-# Sync credentials from 1Password. Match secret "name" to the secretKeyRef.name used in jobs above.
+# Sync credentials from 1Password (expectedbehaviors/OnePasswordItem-helm). Namespace = .Release.Namespace.
+# Set enabled: false if you supply secrets another way (e.g. External Secrets).
 onepassworditem:
-  secrets:
-    external-services:
-      - item: vaults/Kubernetes/items/ipmi
-        name: ipmi
-        type: Opaque
+  enabled: true
+  items:
+    - item: vaults/Kubernetes/items/ipmi
+      name: ipmi
+      type: Opaque
