@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Release tag (e.g. v1.0.0). Default: latest release.'
+        description: 'Release tag (e.g. ipmi-fan-control-v1.0.0). Default: latest release.'
         required: false
 
 permissions:
@@ -22,7 +22,6 @@ jobs:
     if: github.event_name == 'release' || github.event_name == 'workflow_dispatch' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     permissions:
       contents: write
-      pages: write
     steps:
       - uses: actions/checkout@v4
         with:
