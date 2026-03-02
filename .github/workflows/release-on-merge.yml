@@ -1,6 +1,11 @@
 name: Release ipmi-fan-control chart on merge to main
 
 on:
+  workflow_dispatch:
+    inputs:
+      baseline_version:
+        description: 'Create baseline release with this version (e.g. 1.0.0) when no tags exist. Leave empty for normal bump.'
+        required: false
   push:
     branches: [main]
     paths:
@@ -40,4 +45,5 @@ jobs:
         uses: expectedbehaviors/github-actions/.github/actions/release-on-merge@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          tag_prefix: "v"
+          tag_prefix: "ipmi-fan-control-v"
+          initial_version: ${{ github.event.inputs.baseline_version || '' }}

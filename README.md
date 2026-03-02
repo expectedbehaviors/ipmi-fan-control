@@ -2,6 +2,14 @@
 
 Generic CronJob-based IPMI fan control for any ipmitool-compatible BMC (e.g. Supermicro, Dell iDRAC). **No vendor-specific logic in the chart** — you supply the exact `command` and `env` per job.
 
+## Subcharts
+
+| Subchart | Source | Values prefix | Description |
+|----------|--------|---------------|-------------|
+| **onepassworditem** | [expectedbehaviors/OnePasswordItem-helm](https://github.com/expectedbehaviors/OnePasswordItem-helm) | `onepassworditem.*` | Syncs 1Password items into Kubernetes Secrets in the release namespace. |
+
+All inputs for this chart: **`jobs`** (list of CronJob spec: name, command, env, schedule, annotations, securityContext, etc.), **`onepassworditem.enabled`**, **`onepassworditem.items`** (list of `{ item, name, type }`). Defaults: see `values.yaml`.
+
 ## Chart contents
 
 - **CronJob(s):** Each entry in `.Values.jobs` becomes one CronJob running `ipmitool` (or your command) on a schedule.
