@@ -35,4 +35,5 @@ jobs:
           chart_name: ipmi-fan-control
           helm_repo_name: onepassworditem
           helm_repo_url: https://expectedbehaviors.github.io/OnePasswordItem-helm
+          tag_version_prefix: "ipmi-fan-control-v"
           release_tag: ${{ github.event.inputs.release_tag }}
