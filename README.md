@@ -10,6 +10,32 @@ Generic CronJob-based IPMI fan control for any ipmitool-compatible BMC (e.g. Sup
 
 All inputs for this chart: **`jobs`** (list of CronJob spec: name, command, env, schedule, annotations, securityContext, etc.), **`onepassworditem.enabled`**, **`onepassworditem.items`** (list of `{ item, name, type }`). Defaults: see `values.yaml`.
 
+## Configuration reference (all inputs)
+
+Every value accepted by this chart is documented below. This chart has no upstream Helm dependency other than onepassworditem; the `jobs` structure is defined by this chart's templates.
+
+### Root: jobs (chart-specific)
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `jobs` | list | `[]` | List of CronJob definitions. Each entry produces one CronJob. |
+| `jobs[].name` | string | required | CronJob name (and container name). |
+| `jobs[].schedule` | string | required | Cron schedule (e.g. `"*/5 * * * *"`). |
+| `jobs[].command` | list | required | Container command (e.g. `["/bin/sh", "-c", "ipmitool ..."]`). |
+| `jobs[].env` | list | `[]` | Env vars; use `valueFrom.secretKeyRef` for credentials (key `name` must match an `onepassworditem.items[].name`). |
+| `jobs[].image` | object | — | Optional image override (repository, tag, pullPolicy). |
+| `jobs[].annotations` | object | `{}` | Pod annotations (e.g. `secret.reloader.stakater.com/reload: ipmi`). |
+| `jobs[].securityContext` | object | — | Pod security context (allowPrivilegeEscalation, privileged, readOnlyRootFilesystem, runAsNonRoot). |
+| `jobs[].resources` | object | `{}` | Container resources. |
+
+### Subchart: onepassworditem
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `onepassworditem.enabled` | bool | `true` | Create OnePasswordItem resources; set `false` if you supply secrets another way. |
+| `onepassworditem.defaultVault` | string | `""` | Default vault for items that don't set `vault`. |
+| `onepassworditem.items` | list | `[]` | List of `{ item, name, type }`. `name` must match `jobs[].env[].valueFrom.secretKeyRef.name`. Optional per-item: `vault`, `namespace`, `annotations`, `labels`. |
+
 ## Chart contents
 
 - **CronJob(s):** Each entry in `.Values.jobs` becomes one CronJob running `ipmitool` (or your command) on a schedule.
