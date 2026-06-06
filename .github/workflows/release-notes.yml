@@ -1,52 +1,10 @@
-name: Release notes (ipmi-fan-control)
-
+# Superseded by helm-chart-ci.yml — remove this file after merge.
+name: _deprecated-superseded-by-helm-chart-ci
 on:
-  release:
-    types: [published]
-  workflow_run:
-    workflows: ["Release ipmi-fan-control chart on merge to main"]
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
-    inputs:
-      release_tag:
-        description: 'Release tag (e.g. ipmi-fan-control-v1.0.0). Default: latest.'
-        required: false
-
 jobs:
-  update-release-notes:
+  noop:
+    if: false
     runs-on: ubuntu-latest
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'ipmi-fan-control-v')) ||
-      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
-    permissions:
-      contents: write
-      pull-requests: read
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Resolve release tag (ipmi-fan-control-v*)
-        id: tag
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_PREFIX: "ipmi-fan-control-v"
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            echo "tag=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
-          elif [ -n "${{ github.event.inputs.release_tag }}" ]; then
-            echo "tag=${{ github.event.inputs.release_tag }}" >> $GITHUB_OUTPUT
-          else
-            TAG=$(gh api "repos/${{ github.repository }}/releases?per_page=20" -q '[.[] | select(.tag_name | startswith("'"$TAG_PREFIX"'")) | .tag_name][0]')
-            [ -z "$TAG" ] || [ "$TAG" = "null" ] && exit 1
-            echo "tag=$TAG" >> $GITHUB_OUTPUT
-          fi
-        shell: bash
-      - name: Update release notes from PR (OpenAI)
-        uses: expectedbehaviors/github-actions/.github/actions/release-notes@main
-        with:
-          openai_api_key: ${{ secrets.OPENAI_API_KEY }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          release_tag: ${{ steps.tag.outputs.tag }}
-          prompt_instruction: "Include chart version, migration notes, breaking changes, and key values (jobs, onepassworditem.items, schedule)."
+      - run: echo "Superseded by helm-chart-ci.yml"

@@ -1,0 +1,53 @@
+name: Helm chart CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'Chart.yaml'
+      - 'values.yaml'
+      - 'values/**'
+      - 'README.md'
+      - '.helmignore'
+      - 'templates/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Chart.yaml'
+      - 'values.yaml'
+      - 'values/**'
+      - 'README.md'
+      - '.helmignore'
+      - 'templates/**'
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      baseline_version:
+        description: 'First release version when no tags exist (e.g. 1.0.0)'
+        required: false
+      release_tag:
+        description: 'Release tag override (e.g. ipmi-fan-control-v1.0.0)'
+        required: false
+
+concurrency: helm-chart-ipmi-fan-control
+
+jobs:
+  ci:
+    permissions:
+      contents: write
+      pull-requests: read
+    uses: expectedbehaviors/github-actions/.github/workflows/helm-chart-ci.yml@main
+    secrets: inherit
+    with:
+      chart_path: .
+      tag_prefix: ipmi-fan-control-v
+      helm_repositories: |
+        onepassworditem=https://expectedbehaviors.github.io/OnePasswordItem-helm
+      publish_enabled: true
+      release_notes_enabled: true
+      chart_name: ipmi-fan-control
+      helm_repo_name: onepassworditem
+      helm_repo_url: https://expectedbehaviors.github.io/OnePasswordItem-helm
+      initial_version: ${{ github.event.inputs.baseline_version || '' }}
+      release_tag: ${{ github.event.inputs.release_tag || '' }}
