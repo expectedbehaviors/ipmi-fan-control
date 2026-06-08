@@ -42,7 +42,8 @@ jobs:
 # Set enabled: false if you supply secrets another way (e.g. External Secrets).
 onepassworditem:
   enabled: true
+  defaultVault: changeme
   items:
-    - item: vaults/Kubernetes/items/ipmi
+    - item: ipmi
       name: ipmi
       type: Opaque
